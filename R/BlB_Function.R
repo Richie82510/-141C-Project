@@ -41,7 +41,7 @@ adult$income<-as.factor(adult$income)
 #fit model
 fit<-blbglm(income~age+`hours-per-week`,data=adult,m=3,B=100)
 #compute coefficients
-coef.blblm(fit)
+coef.blbglm(fit)
 #compute sigm
 sigma.blbglm(fit)
 #confidence interval for sigma
@@ -90,7 +90,7 @@ blbglm <- function(formula, data, m = 10, B = 5000) {
     data_list,
     ~ glm_each_subsample(formula = formula, data = ., n = nrow(data), B = B)
   )
-  res <- list(estimates = estimates, formula = formula,data_list= data_list)
+  res <- list(estimates = estimates, formula = formula)
   class(res) <- "blbglm"
   invisible(res)
 }
@@ -107,16 +107,16 @@ sigma.blbglm <- function(fit,ci=FALSE) {
   est<-map(fit$estimates,~map(.,"sigma")%>%reduce(.,rbind))
     sigma<-est%>%
     map(.,~apply(.,2,mean))%>%
-    reduce(`+`)/length(fit)
+    reduce(`+`)/length(fit$estimates)
     print(sigma)
   #confidence interval
   if(ci)
-    est%>%map(.,~apply(.,2,function(x)quantile(x,c(0.025,0.975))))%>%reduce(`+`)/length(fit)
+    est%>%map(.,~apply(.,2,function(x)quantile(x,c(0.025,0.975))))%>%reduce(`+`)/length(fit$estimates)
 }
 
 confint.blbglm <- function(fit) {
   map(fit$estimates,~map(.,"coef")%>%reduce(.,rbind))%>%
     map(.,~apply(.,2,function(x)quantile(x,c(0.025,0.975))))%>%
-    reduce(`+`)/length(fit)
+    reduce(`+`)/length(fit$estimates)
 }
 
