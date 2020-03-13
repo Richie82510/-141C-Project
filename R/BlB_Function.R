@@ -10,67 +10,113 @@
 #   Test Package:              'Ctrl + Shift + T'
 
 #-----------------------------------------------
-
-
 #' @import purrr
-
 #' @import stats
-
 #' @importFrom magrittr %>%
-
 #' @details
 
 #' Logistic Regression with Little Bag of Bootstraps
-
 "_PACKAGE"
-
 #' @export
 
-blbcoef<-function(formula,data){
-  m<-10
-  r<-1000
-  n<-nrow(data)
-  groups<-sample(seq_len(m),n,replace=TRUE)
-  map(seq_len(m), ~write_csv(adult[groups==.,], str_c("part",.,".csv")))
+#---------------------------------
 
-  calc_coef<-function(subsample,freqs){
-    log.model <- glm(formula, family = binomial(), weights=freqs, subsample)
-    log.model$coefficients
-  }
-  each_boot<-function(i,ind_part){
-    subsample=read_csv(str_c("part",ind_part,".csv"))
-    freqs=rmultinom(1,n,rep(1,nrow(subsample)))
-    calc_coef(subsample,freqs)
-  }
-  #calculate Confidence interval for each subsample
-  indCI<-function(x){
-    val<-NULL
-    pci<-NULL
-    for (i in 1:length(x[[1]])) {
-      for (j in 1:length(x)) {
-        val[j]<-x[[j]][i]
-      }
-      pci[[i]]<-val%>%quantile(c(0.025, 0.975),na.rm = TRUE)
-    }
-    pci
-  }
-  #using a function to combine all samples' confidence intervals
-  reduceCI<-function(x){
-    val<-NULL
-    pci<-NULL
-    for (i in 1:length(x[[1]])) {
-      for (j in 1:length(x)) {
-        val[j]<-x[[j]][i]
-      }
-      pci[[i]]<-reduce(val, `+`) / length(val)
-    }
-    pci
-  }
-  #save all confidence intervals of all subsamples into cilist
-  cilist <- map(seq_len(m),~{
-    map(seq_len(r), each_boot, ind_part =.)%>%
-      indCI(.)
-    })
-  #combine all subsample together
-  reduceCI(cilist)
-  }
+#this part can use to test functions
+
+library(caTools)
+library(readr)
+library(tidyverse)
+adult <- read_csv("adult.csv")%>%as_tibble()
+adult$income<-ifelse(adult$income == ">50K",1,0)
+adult$`native-country` <- as.factor(adult$`native-country`)
+adult$`marital-status` <- as.factor(adult$`marital-status`)
+adult$workclass <- as.factor(adult$workclass)
+adult$race<-as.factor(adult$race)
+adult$education<-as.factor(adult$education)
+adult$occupation<-as.factor(adult$occupation)
+adult$relationship<-as.factor(adult$relationship)
+adult$gender<-as.factor(adult$gender)
+adult$income<-as.factor(adult$income)
+
+#fit model
+fit<-blbglm(income~age+`hours-per-week`,data=adult,m=3,B=100)
+#compute coefficients
+coef.blblm(fit)
+#compute sigm
+sigma.blbglm(fit)
+#confidence interval for sigma
+sigma.blbglm(fit,ci=TRUE)
+#confidence interval for coefficients
+confint.blbglm(fit)
+#----------------------------
+
+
+
+#' split data into m parts of approximated equal sizes
+split_data <- function(data, m) {
+  idx <- sample.int(m, nrow(data), replace = TRUE)
+  data %>% split(idx)
+}
+
+#' compute the regression estimates for a blb dataset
+glm_each_boot <- function(formula, data, n) {
+  freqs <- rmultinom(1, n, rep(1, nrow(data)))
+  glm1(formula, data, freqs)
+}
+glm1 <- function(formula, data, freqs) {
+  # drop the original closure of formula,
+  # otherwise the formula will pick wrong variables from a parent scope.
+  environment(formula) <- environment()
+  fit <- glm(formula, data, family = binomial(),weights = freqs)
+  list(sigma = blbsigma(fit), coef = blbcoef(fit))
+}
+#
+#' compute the estimates
+glm_each_subsample <- function(formula, data, n, B) {
+  replicate(B, glm_each_boot(formula, data, n), simplify = FALSE)
+}
+
+blbsigma <- function(fit) {
+  sigma(fit)
+}
+
+blbcoef<-function(fit){
+  fit$coefficients
+}
+
+blbglm <- function(formula, data, m = 10, B = 5000) {
+  data_list <- split_data(data, m)
+  estimates <- map(
+    data_list,
+    ~ glm_each_subsample(formula = formula, data = ., n = nrow(data), B = B)
+  )
+  res <- list(estimates = estimates, formula = formula,data_list= data_list)
+  class(res) <- "blbglm"
+  invisible(res)
+}
+
+#' estimate the regression estimates based on given number of repetitions
+coef.blbglm <- function(fit) {
+  map(fit$estimates,~map(.,"coef"))%>%
+    map(.,~reduce(.,rbind))%>%
+    map(.,~apply(.,2,mean))%>%
+    reduce(`+`)/length(fit$estimates)
+}
+
+sigma.blbglm <- function(fit,ci=FALSE) {
+  est<-map(fit$estimates,~map(.,"sigma")%>%reduce(.,rbind))
+    sigma<-est%>%
+    map(.,~apply(.,2,mean))%>%
+    reduce(`+`)/length(fit)
+    print(sigma)
+  #confidence interval
+  if(ci)
+    est%>%map(.,~apply(.,2,function(x)quantile(x,c(0.025,0.975))))%>%reduce(`+`)/length(fit)
+}
+
+confint.blbglm <- function(fit) {
+  map(fit$estimates,~map(.,"coef")%>%reduce(.,rbind))%>%
+    map(.,~apply(.,2,function(x)quantile(x,c(0.025,0.975))))%>%
+    reduce(`+`)/length(fit)
+}
+
