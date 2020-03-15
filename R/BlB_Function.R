@@ -1,15 +1,3 @@
-
-# You can learn more about package authoring with RStudio at:
-#
-#   http://r-pkgs.had.co.nz/
-#
-# Some useful keyboard shortcuts for package authoring:
-#
-#   Install Package:           'Ctrl + Shift + B'
-#   Check Package:             'Ctrl + Shift + E'
-#   Test Package:              'Ctrl + Shift + T'
-
-#-----------------------------------------------
 #' @import purrr
 #' @import stats
 #' @importFrom magrittr %>%
@@ -18,38 +6,6 @@
 #' Logistic Regression with Little Bag of Bootstraps
 "_PACKAGE"
 #' @export
-
-#---------------------------------
-
-#this part can use to test functions
-
-library(caTools)
-library(readr)
-library(tidyverse)
-adult <- read_csv("adult.csv")%>%as_tibble()
-adult$income<-ifelse(adult$income == ">50K",1,0)
-adult$`native-country` <- as.factor(adult$`native-country`)
-adult$`marital-status` <- as.factor(adult$`marital-status`)
-adult$workclass <- as.factor(adult$workclass)
-adult$race<-as.factor(adult$race)
-adult$education<-as.factor(adult$education)
-adult$occupation<-as.factor(adult$occupation)
-adult$relationship<-as.factor(adult$relationship)
-adult$gender<-as.factor(adult$gender)
-adult$income<-as.factor(adult$income)
-
-#fit model
-fit<-blbglm(income~age+`hours-per-week`,data=adult,m=3,B=100)
-#compute coefficients
-coef.blbglm(fit)
-#compute sigm
-sigma.blbglm(fit)
-#confidence interval for sigma
-sigma.blbglm(fit,ci=TRUE)
-#confidence interval for coefficients
-confint.blbglm(fit)
-#----------------------------
-
 
 
 #' split data into m parts of approximated equal sizes
@@ -63,6 +19,8 @@ glm_each_boot <- function(formula, data, n) {
   freqs <- rmultinom(1, n, rep(1, nrow(data)))
   glm1(formula, data, freqs)
 }
+
+#' estimate the regression estimates based on given number of repetitions
 glm1 <- function(formula, data, freqs) {
   # drop the original closure of formula,
   # otherwise the formula will pick wrong variables from a parent scope.
@@ -76,14 +34,17 @@ glm_each_subsample <- function(formula, data, n, B) {
   replicate(B, glm_each_boot(formula, data, n), simplify = FALSE)
 }
 
+#' compute sigma from fit
 blbsigma <- function(fit) {
   sigma(fit)
 }
 
+#' compute the coefficients from fit
 blbcoef<-function(fit){
   fit$coefficients
 }
 
+#' @export
 blbglm <- function(formula, data, m = 10, B = 5000) {
   data_list <- split_data(data, m)
   estimates <- map(
@@ -95,7 +56,8 @@ blbglm <- function(formula, data, m = 10, B = 5000) {
   invisible(res)
 }
 
-#' estimate the regression estimates based on given number of repetitions
+#' @export
+#' @method coef blbglm
 coef.blbglm <- function(fit) {
   map(fit$estimates,~map(.,"coef"))%>%
     map(.,~reduce(.,rbind))%>%
@@ -103,6 +65,8 @@ coef.blbglm <- function(fit) {
     reduce(`+`)/length(fit$estimates)
 }
 
+#' @export
+#' @method sigma blbglm
 sigma.blbglm <- function(fit,ci=FALSE) {
   est<-map(fit$estimates,~map(.,"sigma")%>%reduce(.,rbind))
     sigma<-est%>%
@@ -114,9 +78,29 @@ sigma.blbglm <- function(fit,ci=FALSE) {
     est%>%map(.,~apply(.,2,function(x)quantile(x,c(0.025,0.975))))%>%reduce(`+`)/length(fit$estimates)
 }
 
+#' @export
+#' @method confint blbglm
 confint.blbglm <- function(fit) {
   map(fit$estimates,~map(.,"coef")%>%reduce(.,rbind))%>%
     map(.,~apply(.,2,function(x)quantile(x,c(0.025,0.975))))%>%
     reduce(`+`)/length(fit$estimates)
 }
 
+#' @export
+#' @method predict blbglm
+predict.blbglm<-function(fit,testdata,confidence=FALSE){
+  coef<-map(fit$estimates,~map(.,"coef")%>%reduce(.,rbind))
+  X<-model.matrix(reformulate(attr(terms(fit$formula), "term.labels")), testdata)
+  t<-map(coef,~apply(.,1,function(y)X%*%y))%>%
+    map(.,rowMeans)%>%
+    bind_rows%>%rowMeans()
+  if(confidence){
+    map(coef,~apply(.,1,function(y)X%*%y))%>%
+      map(.,data.frame)%>%
+      map(.,~apply(.,1,function(x)exp(x)/(1+exp(x))))%>%
+      map(.,~apply(.,2,function(x)quantile(x,c(0.025,0.975))))%>%
+      reduce(`+`)/length(coef)
+  }
+  else
+    print(exp(t)/(1+exp(t)))
+}
