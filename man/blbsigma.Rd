@@ -2,10 +2,13 @@
 % Please edit documentation in R/analysis.R
 \name{blbsigma}
 \alias{blbsigma}
-\title{compute sigma from fit}
+\title{compute sigma}
 \usage{
 blbsigma(fit)
 }
+\arguments{
+\item{fit}{the logistic regression model for each subsample}
+}
 \description{
-compute sigma from fit
+cumpute sigma from each model
 }

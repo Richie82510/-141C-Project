@@ -6,6 +6,14 @@
 \usage{
 glm_each_boot(formula, data, n)
 }
+\arguments{
+\item{formula}{an object of class "formula" (or one that can be coerced to that class)}
+
+\item{data}{the sub_data from original data set}
+
+\item{n}{the size of original data set}
+}
 \description{
-compute the regression estimates for a blb dataset
+glm_each_boot can compute the logistic regression estimates for
+a bag og litte bootstraps, it will run B times.
 }

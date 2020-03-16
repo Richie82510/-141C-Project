@@ -8,19 +8,46 @@
 #' @export
 
 
+#' split data
+#'
 #' split data into m parts of approximated equal sizes
+#'
+#' @param data an data frame containing the variables in the function.
+#' @param m split data into m parts，default number is 10
+#'
+#' @return list
+#'
+#' @example
+#' split_data(adult,m=10)
 split_data <- function(data, m) {
   idx <- sample.int(m, nrow(data), replace = TRUE)
   data %>% split(idx)
 }
 
+
+
 #' compute the regression estimates for a blb dataset
+#'
+#' glm_each_boot can compute the logistic regression estimates for
+#' a bag og litte bootstraps, it will run B times.
+#'
+#'@param formula an object of class "formula" (or one that can be coerced to that class)
+#'@param data the sub_data from original data set
+#'@param n the size of original data set
 glm_each_boot <- function(formula, data, n) {
   freqs <- rmultinom(1, n, rep(1, nrow(data)))
   glm1(formula, data, freqs)
 }
 
+
+
+#' logistic regression estimates
+#'
 #' estimate the regression estimates based on given number of repetitions
+#'
+#' @param formula an object of class "formula" (or one that can be coerced to that class)
+#' @param data the sub_data from original data set
+#' @param freqs the frequence from glm_each_boot function
 glm1 <- function(formula, data, freqs) {
   # drop the original closure of formula,
   # otherwise the formula will pick wrong variables from a parent scope.
@@ -28,23 +55,55 @@ glm1 <- function(formula, data, freqs) {
   fit <- glm(formula, data, family = binomial(),weights = freqs)
   list(sigma = blbsigma(fit), coef = blbcoef(fit))
 }
-#
+
+
+
+
 #' compute the estimates
+#'
+#' compute the estimates for each subsample and fit model for each subsmple B times
+#'
+#' @param formula an object of class "formula" (or one that can be coerced to that class)
+#' @param data the sub_data from original data set
+#' @param n the size of original data set
+#' @param B the subsample repeat B times
 glm_each_subsample <- function(formula, data, n, B) {
   replicate(B, glm_each_boot(formula, data, n), simplify = FALSE)
 }
 
-#' compute sigma from fit
+#' compute sigma
+#'
+#' cumpute sigma from each model
+#'
+#' @param fit the logistic regression model for each subsample
 blbsigma <- function(fit) {
   sigma(fit)
 }
 
-#' compute the coefficients from fit
+#' compute the coefficients
+#'
+#' compute the coefficients from each model
+#'
+#' @param fit the logistic regression model for each subsample
 blbcoef<-function(fit){
   fit$coefficients
 }
 
+
+#' find the logistic regression with bag of little bootstraps
+#'
+#' blbglm is used to fit logistic models. It can be used to carry out regression,
+#' single stratum analysis of variance and analysis of covariance
+#'
+#' @param formula an object of class "formula" (or one that can be coerced to that class)
+#' @param  data an data frame, list or environment containing the variables in the model.
+#' @param  m an optional element，split data into m parts，default number is 10
+#' @param  B an optional element, eachoots run B times,dedefault number is 5000
+#'
 #' @export
+#' @examples
+#' require (adult)
+#' blbglm(income~age+`hours-per-week`,data=adult,m=3,B=100)
 blbglm <- function(formula, data, m = 10, B = 5000) {
   data_list <- split_data(data, m)
   estimates <- map(
