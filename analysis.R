@@ -25,7 +25,6 @@ split_data <- function(data, m) {
 }
 
 
-
 #' Compute Regression Estimates for a BLB Dataset
 #'
 #' glm_each_boot computes the logistic regression estimates for
