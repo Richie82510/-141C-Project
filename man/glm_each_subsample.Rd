@@ -2,19 +2,19 @@
 % Please edit documentation in R/analysis.R
 \name{glm_each_subsample}
 \alias{glm_each_subsample}
-\title{compute the estimates}
+\title{Compute the estimates}
 \usage{
 glm_each_subsample(formula, data, n, B)
 }
 \arguments{
-\item{formula}{an object of class "formula" (or one that can be coerced to that class)}
+\item{formula}{an object of class "formula" (or one that can be coerced to that class).}
 
-\item{data}{the sub_data from original data set}
+\item{data}{the sub_data from original data set.}
 
-\item{n}{the size of original data set}
+\item{n}{the size of original data set.}
 
-\item{B}{the subsample repeat B times}
+\item{B}{the subsample repeat B times.}
 }
 \description{
-compute the estimates for each subsample and fit model for each subsmple B times
+Compute the Estimates for Each Subsample and Fit mMdel for Each Subsmple B Times.
 }

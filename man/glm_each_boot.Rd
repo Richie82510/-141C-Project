@@ -2,18 +2,18 @@
 % Please edit documentation in R/analysis.R
 \name{glm_each_boot}
 \alias{glm_each_boot}
-\title{compute the regression estimates for a blb dataset}
+\title{Compute Regression Estimates for a BLB Dataset}
 \usage{
 glm_each_boot(formula, data, n)
 }
 \arguments{
-\item{formula}{an object of class "formula" (or one that can be coerced to that class)}
+\item{formula}{an object of class "formula" (or one that can be coerced to that class).}
 
-\item{data}{the sub_data from original data set}
+\item{data}{the sub_data from original data set.}
 
-\item{n}{the size of original data set}
+\item{n}{the size of original data set.}
 }
 \description{
-glm_each_boot can compute the logistic regression estimates for
-a bag og litte bootstraps, it will run B times.
+glm_each_boot computes the logistic regression estimates for
+a bag og little bootstraps, it will run B times.
 }

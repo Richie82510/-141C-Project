@@ -8,17 +8,17 @@
 #' @export
 
 
-#' split data
+#' Split data
 #'
-#' split data into m parts of approximated equal sizes
+#' Split Data into M Parts of Approximated Equal Sizes
 #'
-#' @param data an data frame containing the variables in the function.
-#' @param m split data into m parts，default number is 10
+#' @param data a data frame containing the variables in the function.
+#' @param m split data into m parts，default number is 10.
 #'
-#' @return list
+#' @return a list.
 #'
 #' @example
-#' split_data(adult,m=10)
+#' split_data(read.csv("adult.csv"),m=10)
 split_data <- function(data, m) {
   idx <- sample.int(m, nrow(data), replace = TRUE)
   data %>% split(idx)
@@ -26,14 +26,14 @@ split_data <- function(data, m) {
 
 
 
-#' compute the regression estimates for a blb dataset
+#' Compute Regression Estimates for a BLB Dataset
 #'
-#' glm_each_boot can compute the logistic regression estimates for
-#' a bag og litte bootstraps, it will run B times.
+#' glm_each_boot computes the logistic regression estimates for
+#' a bag og little bootstraps, it will run B times.
 #'
-#'@param formula an object of class "formula" (or one that can be coerced to that class)
-#'@param data the sub_data from original data set
-#'@param n the size of original data set
+#'@param formula an object of class "formula" (or one that can be coerced to that class).
+#'@param data the sub_data from original data set.
+#'@param n the size of original data set.
 glm_each_boot <- function(formula, data, n) {
   freqs <- rmultinom(1, n, rep(1, nrow(data)))
   glm1(formula, data, freqs)
@@ -41,13 +41,13 @@ glm_each_boot <- function(formula, data, n) {
 
 
 
-#' logistic regression estimates
+#' Logistic regression estimates
 #'
-#' estimate the regression estimates based on given number of repetitions
+#' Estimate Regression Estimates Based on a Given Number of Repetitions.
 #'
-#' @param formula an object of class "formula" (or one that can be coerced to that class)
-#' @param data the sub_data from original data set
-#' @param freqs the frequence from glm_each_boot function
+#' @param formula an object of class "formula" (or one that can be coerced to that class).
+#' @param data the sub_data from original data set.
+#' @param freqs the frequency from glm_each_boot function.
 glm1 <- function(formula, data, freqs) {
   # drop the original closure of formula,
   # otherwise the formula will pick wrong variables from a parent scope.
@@ -59,46 +59,48 @@ glm1 <- function(formula, data, freqs) {
 
 
 
-#' compute the estimates
+#' Compute the estimates
 #'
-#' compute the estimates for each subsample and fit model for each subsmple B times
+#' Compute the Estimates for Each Subsample and Fit mMdel for Each Subsmple B Times.
 #'
-#' @param formula an object of class "formula" (or one that can be coerced to that class)
-#' @param data the sub_data from original data set
-#' @param n the size of original data set
-#' @param B the subsample repeat B times
+#' @param formula an object of class "formula" (or one that can be coerced to that class).
+#' @param data the sub_data from original data set.
+#' @param n the size of original data set.
+#' @param B the subsample repeat B times.
 glm_each_subsample <- function(formula, data, n, B) {
   replicate(B, glm_each_boot(formula, data, n), simplify = FALSE)
 }
 
-#' compute sigma
+#' Compute sigma
 #'
-#' cumpute sigma from each model
+#' Compute Sigma from Each Model
 #'
-#' @param fit the logistic regression model for each subsample
+#' @param fit the logistic regression model for each subsample.
 blbsigma <- function(fit) {
   sigma(fit)
 }
 
-#' compute the coefficients
+#' Compute the coefficients
 #'
-#' compute the coefficients from each model
+#' Compute Coefficients from Each Model
 #'
-#' @param fit the logistic regression model for each subsample
+#' @param fit logistic regression model for each subsample.
 blbcoef<-function(fit){
   fit$coefficients
 }
 
 
-#' find the logistic regression with bag of little bootstraps
+#' Find the Logistic Regression with Bag of Little Bootstraps
 #'
-#' blbglm is used to fit logistic models. It can be used to carry out regression,
-#' single stratum analysis of variance and analysis of covariance
+#' \code{blbglm} is used to fit logistic models. It can be used to carry out regression,
+#' single stratum analysis of variance and analysis of covariance.
 #'
-#' @param formula an object of class "formula" (or one that can be coerced to that class)
+#' @param formula an object of class "formula" (or one that can be coerced to that class).
 #' @param  data an data frame, list or environment containing the variables in the model.
-#' @param  m an optional element，split data into m parts，default number is 10
-#' @param  B an optional element, eachoots run B times,dedefault number is 5000
+#' @param  m an optional element，split data into m parts，default number is 10.
+#' @param  B an optional element, each boot run B times, the default number is 5000.
+#'
+#' @return a list containing the estimates and formula.
 #'
 #' @export
 #' @examples
@@ -115,6 +117,17 @@ blbglm <- function(formula, data, m = 10, B = 5000) {
   invisible(res)
 }
 
+
+#' Compute the Bootstrap Coefficients
+#'
+#' \code{coef.blbglm} is used to find the coefficient estimates from the bag of little bootstraps
+#'  by dividing the sum of each bootstrap sample coefficients by the number of samples.
+#'
+#' @param fit a vector containing the logistic regression models for each bootstrap sample.
+#' @example
+#' coef.blbglm()
+#'
+#' @return a list of bootstrap coefficient estimates calculated from the BLB estimates
 #' @export
 #' @method coef blbglm
 coef.blbglm <- function(fit) {
@@ -124,6 +137,12 @@ coef.blbglm <- function(fit) {
     reduce(`+`)/length(fit$estimates)
 }
 
+
+#' Compute Sigma and Its Confidence Interval for Each Bootstrap Model
+#'
+#' \code{sigma.blbglm} is used to compute the overall sigma and its 95% CI for the whole dataset.
+#' @param fit a list of models for the bootstrap samples.
+#' @param ci logical. If TRUE, the function will return the 95% confidence intervals for each bootstrap model.
 #' @export
 #' @method sigma blbglm
 sigma.blbglm <- function(fit,ci=FALSE) {
@@ -137,6 +156,14 @@ sigma.blbglm <- function(fit,ci=FALSE) {
     est%>%map(.,~apply(.,2,function(x)quantile(x,c(0.025,0.975))))%>%reduce(`+`)/length(fit$estimates)
 }
 
+
+#' Compute Confidence Interval for Each BLB Coefficient
+#'
+#' \code{confint.blbglm} is used to compute the 95% confidence interval
+#'  for each coefficient using Bag of Little Bootstraps.
+#'
+#' @param fit a list of bootstrap models for the BLB subsamples.
+#'
 #' @export
 #' @method confint blbglm
 confint.blbglm <- function(fit) {
@@ -145,8 +172,22 @@ confint.blbglm <- function(fit) {
     reduce(`+`)/length(fit$estimates)
 }
 
+
+#' Apply logistic regression to Bags of Little Bootstraps (BLB)
+#'
+#' \code{predict.blbglm} predicts the probability of obtaining a response variable, and returns
+#' a 95% confidence interval for the probability if confidence = TRUE.
+#' @param fit a list of fitted models computed using BLB (e.g. fit<-blbglm(...)).
+#' @param testdata a tibble, data frame, or named vector containing the data.
+#' @param confidence logical. If TRUE, a confidence interval will be returned.
 #' @export
 #' @method predict blbglm
+#' @examples fit<-blbglm(income~age+`hours-per-week`,data=adult)
+#' testdata<-tibble(age=c(25,30), `hours-per-week`=c(50,100))
+#' predict.blbglm(fit,testdata,confidence=T)
+#'              [,1]           [,2]
+#'2.5%     0.1863978     0.09907537
+#'97.5%   0.1960761      0.10568005
 predict.blbglm<-function(fit,testdata,confidence=FALSE){
   coef<-map(fit$estimates,~map(.,"coef")%>%reduce(.,rbind))
   X<-model.matrix(reformulate(attr(terms(fit$formula), "term.labels")), testdata)
@@ -163,4 +204,3 @@ predict.blbglm<-function(fit,testdata,confidence=FALSE){
   else
     print(exp(t)/(1+exp(t)))
 }
-

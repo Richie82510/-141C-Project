@@ -2,13 +2,13 @@
 % Please edit documentation in R/analysis.R
 \name{blbcoef}
 \alias{blbcoef}
-\title{compute the coefficients}
+\title{Compute the coefficients}
 \usage{
 blbcoef(fit)
 }
 \arguments{
-\item{fit}{the logistic regression model for each subsample}
+\item{fit}{logistic regression model for each subsample.}
 }
 \description{
-compute the coefficients from each model
+Compute Coefficients from Each Model
 }
