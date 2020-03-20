@@ -14,8 +14,8 @@
 \item{confidence}{logical. If TRUE, a confidence interval will be returned.}
 }
 \description{
-\code{predict.blbglm} predicts the probability of obtaining a response variable, and returns
-a 95% confidence interval for the probability if confidence = TRUE.
+\code{predict.blbglm} predict.blbglm predicts the probability of obtaining a response variable,
+and returns a 95 percent confidence interval for the probability if confidence = TRUE.
 }
 \examples{
 fit<-blbglm(income~age+`hours-per-week`,data=adult)

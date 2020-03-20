@@ -10,6 +10,6 @@
 \item{fit}{a list of bootstrap models for the BLB subsamples.}
 }
 \description{
-\code{confint.blbglm} is used to compute the 95% confidence interval
+\code{confint.blbglm} is used to compute the 95 percent confidence interval
  for each coefficient using Bag of Little Bootstraps.
 }

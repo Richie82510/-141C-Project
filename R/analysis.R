@@ -140,9 +140,10 @@ coef.blbglm <- function(fit) {
 
 #' Compute Sigma and Its Confidence Interval for Each Bootstrap Model
 #'
-#' \code{sigma.blbglm} is used to compute the overall sigma and its 95% CI for the whole dataset.
+#' \code{sigma.blbglm} is used to compute the overall sigma and its 95 percent CI for the whole dataset.
+#'
 #' @param fit a list of models for the bootstrap samples.
-#' @param ci logical. If TRUE, the function will return the 95% confidence intervals for each bootstrap model.
+#' @param ci logical. If TRUE, the function will return the 95 percent confidence intervals for each bootstrap model.
 #' @export
 #' @method sigma blbglm
 sigma.blbglm <- function(fit,ci=FALSE) {
@@ -159,7 +160,7 @@ sigma.blbglm <- function(fit,ci=FALSE) {
 
 #' Compute Confidence Interval for Each BLB Coefficient
 #'
-#' \code{confint.blbglm} is used to compute the 95% confidence interval
+#' \code{confint.blbglm} is used to compute the 95 percent confidence interval
 #'  for each coefficient using Bag of Little Bootstraps.
 #'
 #' @param fit a list of bootstrap models for the BLB subsamples.
@@ -175,13 +176,17 @@ confint.blbglm <- function(fit) {
 
 #' Apply logistic regression to Bags of Little Bootstraps (BLB)
 #'
-#' \code{predict.blbglm} predicts the probability of obtaining a response variable, and returns
-#' a 95% confidence interval for the probability if confidence = TRUE.
+#' \code{predict.blbglm} predict.blbglm predicts the probability of obtaining a response variable,
+#' and returns a 95 percent confidence interval for the probability if confidence = TRUE.
+#'
 #' @param fit a list of fitted models computed using BLB (e.g. fit<-blbglm(...)).
 #' @param testdata a tibble, data frame, or named vector containing the data.
 #' @param confidence logical. If TRUE, a confidence interval will be returned.
+#'
 #' @export
+#'
 #' @method predict blbglm
+#'
 #' @examples fit<-blbglm(income~age+`hours-per-week`,data=adult)
 #' testdata<-tibble(age=c(25,30), `hours-per-week`=c(50,100))
 #' predict.blbglm(fit,testdata,confidence=T)

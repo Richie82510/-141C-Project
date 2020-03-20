@@ -9,8 +9,8 @@
 \arguments{
 \item{fit}{a list of models for the bootstrap samples.}
 
-\item{ci}{logical. If TRUE, the function will return the 95% confidence intervals for each bootstrap model.}
+\item{ci}{logical. If TRUE, the function will return the 95 percent confidence intervals for each bootstrap model.}
 }
 \description{
-\code{sigma.blbglm} is used to compute the overall sigma and its 95% CI for the whole dataset.
+\code{sigma.blbglm} is used to compute the overall sigma and its 95 percent CI for the whole dataset.
 }
