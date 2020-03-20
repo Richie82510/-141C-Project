@@ -12,3 +12,8 @@ blbcoef(fit)
 \description{
 Compute Coefficients from Each Model
 }
+\examples{
+blbcoef(lm(income~age, vignette_sample))
+## (Intercept)         age
+## 0.013823722 0.005805649
+}

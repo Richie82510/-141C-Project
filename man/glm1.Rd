@@ -16,3 +16,14 @@ glm1(formula, data, freqs)
 \description{
 Estimate Regression Estimates Based on a Given Number of Repetitions.
 }
+\examples{
+form = income ~ hours.per.week + age + gender
+freq <- rmultinom(1, nrow(vignette_sample), rep(1, nrow(vignette_sample)))
+glm1(form, vignette_sample, freq)
+## $sigma
+## [1] 1.17456
+##
+## $coef
+##    (Intercept) hours.per.week            age     genderMale
+##    -4.94910851     0.05414013     0.02121227     0.64940167
+}

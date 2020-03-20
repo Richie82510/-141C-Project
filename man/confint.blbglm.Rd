@@ -13,3 +13,9 @@
 \code{confint.blbglm} is used to compute the 95 percent confidence interval
  for each coefficient using Bag of Little Bootstraps.
 }
+\examples{
+confint.blbglm(blbfit)
+##       (Intercept) hours.per.week        age genderMale
+## 2.5\%   -11.895876     0.04655235 0.01985707  0.4567024
+## 97.5\%   -4.948412     0.15050993 0.07731212  2.8073899
+}

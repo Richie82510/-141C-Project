@@ -17,3 +17,7 @@ glm_each_boot(formula, data, n)
 glm_each_boot computes the logistic regression estimates for
 a bag og little bootstraps, it will run B times.
 }
+\examples{
+form = income ~ hours.per.week + age + gender
+glm_each_boot(form, vignette_sample, nrow(vignette_sample))
+}

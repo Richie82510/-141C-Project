@@ -14,3 +14,14 @@
 \description{
 \code{sigma.blbglm} is used to compute the overall sigma and its 95 percent CI for the whole dataset.
 }
+\examples{
+## NO CI
+sigma.blbglm(blbfit,ci=FALSE)
+## [1] 1.689036
+## With CI
+sigma.blbglm(blbfit,ci=TRUE)
+## [1] 1.689036
+##           [,1]
+## 2.5\%  1.517758
+## 97.5\% 1.816267
+}

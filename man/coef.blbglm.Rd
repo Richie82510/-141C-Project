@@ -16,3 +16,7 @@ a list of bootstrap coefficient estimates calculated from the BLB estimates
 \code{coef.blbglm} is used to find the coefficient estimates from the bag of little bootstraps
  by dividing the sum of each bootstrap sample coefficients by the number of samples.
 }
+\examples{
+coef.blbglm()
+
+}

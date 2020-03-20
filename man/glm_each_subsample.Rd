@@ -18,3 +18,7 @@ glm_each_subsample(formula, data, n, B)
 \description{
 Compute the Estimates for Each Subsample and Fit mMdel for Each Subsmple B Times.
 }
+\examples{
+form = income ~ hours.per.week + age + gender
+glm_each_subsample(form, vignette_sample, nrow(df), B=100)
+}

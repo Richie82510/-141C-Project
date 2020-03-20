@@ -12,3 +12,7 @@ blbsigma(fit)
 \description{
 Compute Sigma from Each Model
 }
+\examples{
+blbsigma(lm(income~age, vignette_sample))
+## [1] 0.4159924
+}

@@ -34,6 +34,9 @@ split_data <- function(data, m) {
 #'@param formula an object of class "formula" (or one that can be coerced to that class).
 #'@param data the sub_data from original data set.
 #'@param n the size of original data set.
+#'@examples
+#'form = income ~ hours.per.week + age + gender
+#'glm_each_boot(form, vignette_sample, nrow(vignette_sample))
 glm_each_boot <- function(formula, data, n) {
   freqs <- rmultinom(1, n, rep(1, nrow(data)))
   glm1(formula, data, freqs)
@@ -48,6 +51,16 @@ glm_each_boot <- function(formula, data, n) {
 #' @param formula an object of class "formula" (or one that can be coerced to that class).
 #' @param data the sub_data from original data set.
 #' @param freqs the frequency from glm_each_boot function.
+#' @examples
+#' form = income ~ hours.per.week + age + gender
+#' freq <- rmultinom(1, nrow(vignette_sample), rep(1, nrow(vignette_sample)))
+#' glm1(form, vignette_sample, freq)
+#' ## $sigma
+#' ## [1] 1.17456
+#' ##
+#' ## $coef
+#' ##    (Intercept) hours.per.week            age     genderMale
+#' ##    -4.94910851     0.05414013     0.02121227     0.64940167
 glm1 <- function(formula, data, freqs) {
   # drop the original closure of formula,
   # otherwise the formula will pick wrong variables from a parent scope.
@@ -67,6 +80,9 @@ glm1 <- function(formula, data, freqs) {
 #' @param data the sub_data from original data set.
 #' @param n the size of original data set.
 #' @param B the subsample repeat B times.
+#' @examples
+#' form = income ~ hours.per.week + age + gender
+#' glm_each_subsample(form, vignette_sample, nrow(df), B=100)
 glm_each_subsample <- function(formula, data, n, B) {
   replicate(B, glm_each_boot(formula, data, n), simplify = FALSE)
 }
@@ -76,6 +92,9 @@ glm_each_subsample <- function(formula, data, n, B) {
 #' Compute Sigma from Each Model
 #'
 #' @param fit the logistic regression model for each subsample.
+#' @examples
+#' blbsigma(lm(income~age, vignette_sample))
+#' ## [1] 0.4159924
 blbsigma <- function(fit) {
   sigma(fit)
 }
@@ -85,6 +104,10 @@ blbsigma <- function(fit) {
 #' Compute Coefficients from Each Model
 #'
 #' @param fit logistic regression model for each subsample.
+#' @examples
+#' blbcoef(lm(income~age, vignette_sample))
+#' ## (Intercept)         age
+#' ## 0.013823722 0.005805649
 blbcoef<-function(fit){
   fit$coefficients
 }
@@ -124,7 +147,7 @@ blbglm <- function(formula, data, m = 10, B = 5000) {
 #'  by dividing the sum of each bootstrap sample coefficients by the number of samples.
 #'
 #' @param fit a vector containing the logistic regression models for each bootstrap sample.
-#' @example
+#' @examples
 #' coef.blbglm()
 #'
 #' @return a list of bootstrap coefficient estimates calculated from the BLB estimates
@@ -146,6 +169,16 @@ coef.blbglm <- function(fit) {
 #' @param ci logical. If TRUE, the function will return the 95 percent confidence intervals for each bootstrap model.
 #' @export
 #' @method sigma blbglm
+#' @examples
+#' ## NO CI
+#' sigma.blbglm(blbfit,ci=FALSE)
+#' ## [1] 1.689036
+#' ## With CI
+#' sigma.blbglm(blbfit,ci=TRUE)
+#' ## [1] 1.689036
+#' ##           [,1]
+#' ## 2.5%  1.517758
+#' ## 97.5% 1.816267
 sigma.blbglm <- function(fit,ci=FALSE) {
   est<-map(fit$estimates,~map(.,"sigma")%>%reduce(.,rbind))
   sigma<-est%>%
@@ -167,6 +200,11 @@ sigma.blbglm <- function(fit,ci=FALSE) {
 #'
 #' @export
 #' @method confint blbglm
+#' @examples
+#' confint.blbglm(blbfit)
+#' ##       (Intercept) hours.per.week        age genderMale
+#' ## 2.5%   -11.895876     0.04655235 0.01985707  0.4567024
+#' ## 97.5%   -4.948412     0.15050993 0.07731212  2.8073899
 confint.blbglm <- function(fit) {
   map(fit$estimates,~map(.,"coef")%>%reduce(.,rbind))%>%
     map(.,~apply(.,2,function(x)quantile(x,c(0.025,0.975))))%>%
