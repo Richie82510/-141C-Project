@@ -2,22 +2,25 @@
 % Please edit documentation in R/analysis.R
 \name{blbglm}
 \alias{blbglm}
-\title{find the logistic regression with bag of little bootstraps}
+\title{Find the Logistic Regression with Bag of Little Bootstraps}
 \usage{
 blbglm(formula, data, m = 10, B = 5000)
 }
 \arguments{
-\item{formula}{an object of class "formula" (or one that can be coerced to that class)}
+\item{formula}{an object of class "formula" (or one that can be coerced to that class).}
 
 \item{data}{an data frame, list or environment containing the variables in the model.}
 
-\item{m}{an optional element，split data into m parts，default number is 10}
+\item{m}{an optional element，split data into m parts，default number is 10.}
 
-\item{B}{an optional element, eachoots run B times,dedefault number is 5000}
+\item{B}{an optional element, each boot run B times, the default number is 5000.}
+}
+\value{
+a list containing the estimates and formula.
 }
 \description{
-blbglm is used to fit logistic models. It can be used to carry out regression,
-single stratum analysis of variance and analysis of covariance
+\code{blbglm} is used to fit logistic models. It can be used to carry out regression,
+single stratum analysis of variance and analysis of covariance.
 }
 \examples{
 require (adult)
